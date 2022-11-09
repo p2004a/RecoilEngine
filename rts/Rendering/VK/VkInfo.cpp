@@ -4,7 +4,11 @@
 #include "System/Log/ILog.h"
 #include "fmt/format.h"
 
+<<<<<<< HEAD
 #if !defined(HEADLESS) && defined(HAS_VULKAN)
+=======
+#ifndef HEADLESS
+>>>>>>> e6ac54ed8c (Create and delete Vulkan context to gather its capabilities)
 void VkInfo::PrintInfoImpl(const char* funcName)
 {
 	LOG("[VkInfo::%s]", funcName);
