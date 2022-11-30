@@ -490,9 +490,6 @@ void CProjectileDrawer::LoadWeaponTextures() {
 	// post-process the synced weapon-defs to set unsynced fields
 	// (this requires CWeaponDefHandler to have been initialized)
 	for (WeaponDef& wd: const_cast<std::vector<WeaponDef>&>(weaponDefHandler->GetWeaponDefsVec())) {
-		if (!weaponDefHandler->IsValidWeaponDefID(wd.id))
-			continue;
-
 		wd.visuals.texture1 = nullptr;
 		wd.visuals.texture2 = nullptr;
 		wd.visuals.texture3 = nullptr;
