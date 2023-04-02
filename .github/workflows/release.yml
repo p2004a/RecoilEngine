@@ -27,12 +27,12 @@ jobs:
       - name: Download Artifacts
         id: dl-artifacts
         run: |
-          get_code=$(curl -X GET -u "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/beyond-all-reason/spring/actions/runs/${{ github.event.inputs.wf-run-id }}")
+          get_code=$(curl -X GET -u "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.inputs.wf-run-id }}")
           if [ $get_code != 200 ]; then
             exit 1
           fi
 
-          artifact_dl_urls=$(curl -X GET -u "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" -s "https://api.github.com/repos/beyond-all-reason/spring/actions/runs/${{ github.event.inputs.wf-run-id }}/artifacts" | jq ".artifacts[].archive_download_url" |  tr -d "\"")
+          artifact_dl_urls=$(curl -X GET -u "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" -s "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.inputs.wf-run-id }}/artifacts" | jq ".artifacts[].archive_download_url" |  tr -d "\"")
 
           for adl in $artifact_dl_urls; do
             curl -X GET -u "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" -L -s -o tmp.zip $adl
