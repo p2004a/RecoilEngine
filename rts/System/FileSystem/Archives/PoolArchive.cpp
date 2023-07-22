@@ -10,6 +10,7 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 
 #include "System/FileSystem/DataDirsAccess.h"
 #include "System/FileSystem/FileSystem.h"
@@ -141,61 +142,29 @@ int CPoolArchive::GetFileImpl(unsigned int fid, std::vector<std::uint8_t>& buffe
 	const std::string prefix(c_hex,      2);
 	const std::string pstfix(c_hex + 2, 30);
 
-	      std::string rpath = poolRootDir + "/pool/" + prefix + "/" + pstfix + ".gz";
+	      std::string rpath = poolRootDir + "/pool/" + prefix + "/" + pstfix + ".raw";
 	const std::string  path = FileSystem::FixSlashes(rpath);
 
 	const spring_time startTime = spring_now();
 
+	std::ifstream ifs(path.c_str(), std::ios::in | std::ios::binary);
+	if (ifs.bad() || !ifs.is_open())
+		return -1;
 
 	buffer.clear();
 	buffer.resize(f->size);
 
-	const auto GzRead = [&f, &path, &buffer](bool report) -> int {
-		gzFile in = gzopen(path.c_str(), "rb");
+	if (!buffer.empty())
+		ifs.read((char*)&buffer[0], buffer.size());
 
-		if (in == nullptr)
-			return -1;
-
-		const int bytesRead = (buffer.empty()) ? 0 : gzread(in, reinterpret_cast<char*>(buffer.data()), buffer.size());
-
-		if (bytesRead < 0 && report) {
-			int errnum;
-			const char* errgz = gzerror(in, &errnum);
-			const char* errsys = std::strerror(errnum);
-
-			LOG_L(L_ERROR, "[PoolArchive::%s] could not read file GZIP reason: \"%s\", SYSTEM reason: \"%s\" (bytesRead=%d fileSize=%u)", __func__, errgz, errsys, bytesRead, f->size);
-		}
-
-		gzclose(in);
-
-		return bytesRead;
-	};
-
-	int bytesRead = Z_ERRNO;
-	static constexpr int readRetries = 1000;
-
-	//Try to workaround occasional crashes
-	// (bytesRead=-1 fileSize=XXXX)
-	int readTry;
-	for (readTry = 0; readTry < readRetries; ++readTry) {
-		bytesRead = GzRead(readTry == 0);
-		if (bytesRead == buffer.size())
-			break;
-
-		std::this_thread::yield();
-		std::this_thread::sleep_for(std::chrono::microseconds(100));
-	}
-
-	s->readTime = (spring_now() - startTime).toNanoSecsi();
-
-	if (bytesRead != buffer.size()) {
-		LOG_L(L_ERROR, "[PoolArchive::%s] failed to read file \"%s\" after %d tries", __func__, path.c_str(), readRetries);
-		buffer.clear();
+	if (!ifs) {
+		LOG_L(L_ERROR, "[PoolArchive::%s] failed to read file \"%s\"", __func__, path.c_str());
 		return 0;
 	}
-	if (readTry > 0) {
-		LOG_L(L_WARNING, "[PoolArchive::%s] could read file \"%s\" only after %d tries", __func__, path.c_str(), readTry);
-	}
+
+	ifs.close();
+
+	s->readTime = (spring_now() - startTime).toNanoSecsi();
 
 	sha512::calc_digest(buffer.data(), buffer.size(), f->shasum.data());
 	return 1;
