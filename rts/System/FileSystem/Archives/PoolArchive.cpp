@@ -166,6 +166,6 @@ int CPoolArchive::GetFileImpl(unsigned int fid, std::vector<std::uint8_t>& buffe
 
 	s->readTime = (spring_now() - startTime).toNanoSecsi();
 
-	sha512::calc_digest(buffer.data(), buffer.size(), f->shasum.data());
+	//sha512::calc_digest(buffer.data(), buffer.size(), f->shasum.data());
 	return 1;
 }
