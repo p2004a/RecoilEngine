@@ -33,9 +33,10 @@ CR_REG_METADATA(CCobEngine::SleepingThread, (
 
 static const char* const numCobThreadsPlot = "CobThreads";
 
+
 int CCobEngine::AddThread(CCobThread&& thread)
 {
-	RECOIL_DETAILED_TRACY_ZONE;
+	ZoneScoped;
 	if (thread.GetID() == -1)
 		thread.SetID(GenThreadID());
 
@@ -52,7 +53,7 @@ int CCobEngine::AddThread(CCobThread&& thread)
 }
 
 bool CCobEngine::RemoveThread(int threadID) {
-	RECOIL_DETAILED_TRACY_ZONE;
+	ZoneScoped;
 	const auto it = threadInstances.find(threadID);
 
 	if (it != threadInstances.end()) {

@@ -8,6 +8,7 @@
  * It also manages reading and caching of the actual .cob files.
  */
 
+#include <tracy/Tracy.hpp>
 #include <vector>
 
 #include "CobThread.h"
@@ -20,6 +21,8 @@ class CCobThread;
 class CCobInstance;
 class CCobFile;
 class CCobFileHandler;
+
+extern const char* const hashMapSearch;
 
 class CCobEngine
 {
@@ -74,6 +77,7 @@ public:
 
 
 	CCobThread* GetThread(int threadID) {
+		ZoneScoped;
 		const auto it = threadInstances.find(threadID);
 
 		if (it == threadInstances.end())

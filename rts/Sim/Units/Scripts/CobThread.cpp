@@ -7,6 +7,7 @@
 #include "CobEngine.h"
 #include "Sim/Misc/GlobalConstants.h"
 #include "Sim/Misc/GlobalSynced.h"
+#include "System/UnorderedMap.hpp"
 
 #include "System/Misc/TracyDefs.h"
 
@@ -305,6 +306,84 @@ static constexpr int PLAY_SOUND = 0x10072000;
 static constexpr int SET    = 0x10082000;
 static constexpr int ATTACH = 0x10083000;
 static constexpr int DROP   = 0x10084000;
+
+// Command documentation from http://visualta.tauniverse.com/Downloads/cob-commands.txt
+// And some information from basm0.8 source (basm ops.txt)
+
+// This is mapping between the opcodes as defined in the standars, and internal
+// opcodes used by the engine. We do the remapping when loading cob so that
+// later when executing COB compiler can optimize swich with jumptable instead
+// of series of compares.
+spring::unordered_map<int, std::pair<uint8_t, short>> opcodes_map = {
+	{0x10001000, {MOVE, 2}},
+	{0x10002000, {TURN, 2}},
+	{0x10003000, {SPIN, 2}},
+	{0x10004000, {STOP_SPIN, 2}},
+	{0x10005000, {SHOW, 1}},
+	{0x10006000, {HIDE, 1}},
+	{0x10007000, {CACHE, 1}},
+	{0x10008000, {DONT_CACHE, 1}},
+	{0x1000B000, {MOVE_NOW, 2}},
+	{0x1000C000, {TURN_NOW, 2}},
+	{0x1000D000, {SHADE, 1}},
+	{0x1000E000, {DONT_SHADE, 1}},
+	{0x1000F000, {EMIT_SFX, 1}},
+	{0x10011000, {WAIT_TURN, 2}},
+	{0x10012000, {WAIT_MOVE, 2}},
+	{0x10013000, {SLEEP, 0}},
+	{0x10021001, {PUSH_CONSTANT, 1}},
+	{0x10021002, {PUSH_LOCAL_VAR, 1}},
+	{0x10021004, {PUSH_STATIC, 1}},
+	{0x10022000, {CREATE_LOCAL_VAR, 0}},
+	{0x10023002, {POP_LOCAL_VAR, 1}},
+	{0x10023004, {POP_STATIC, 1}},
+	{0x10024000, {POP_STACK, 0}},
+	{0x10031000, {ADD, 0}},
+	{0x10032000, {SUB, 0}},
+	{0x10033000, {MUL, 0}},
+	{0x10034000, {DIV, 0}},
+	{0x10034001, {MOD, 0}},
+	{0x10035000, {BITWISE_AND, 0}},
+	{0x10036000, {BITWISE_OR, 0}},
+	{0x10037000, {BITWISE_XOR, 0}},
+	{0x10038000, {BITWISE_NOT, 0}},
+	{0x10041000, {RAND, 0}},
+	{0x10042000, {GET_UNIT_VALUE, 0}},
+	{0x10043000, {GET, 0}},
+	{0x10051000, {SET_LESS, 0}},
+	{0x10052000, {SET_LESS_OR_EQUAL, 0}},
+	{0x10053000, {SET_GREATER, 0}},
+	{0x10054000, {SET_GREATER_OR_EQUAL, 0}},
+	{0x10055000, {SET_EQUAL, 0}},
+	{0x10056000, {SET_NOT_EQUAL, 0}},
+	{0x10057000, {LOGICAL_AND, 0}},
+	{0x10058000, {LOGICAL_OR, 0}},
+	{0x10059000, {LOGICAL_XOR, 0}},
+	{0x1005A000, {LOGICAL_NOT, 0}},
+	{0x10061000, {START, 2}},
+	{0x10062000, {CALL, 2}},
+	{0x10062001, {REAL_CALL, 2}},
+	{0x10062002, {LUA_CALL, 2}},
+	{0x10064000, {JUMP, 1}},
+	{0x10065000, {RETURN, 0}},
+	{0x10066000, {JUMP_NOT_EQUAL, 1}},
+	{0x10067000, {SIGNAL, 0}},
+	{0x10068000, {SET_SIGNAL_MASK, 0}},
+	{0x10071000, {EXPLODE, 1}},
+	{0x10072000, {PLAY_SOUND, 1}},
+	{0x10082000, {SET, 0}},
+	{0x10083000, {ATTACH, 0}},
+	{0x10084000, {DROP, 0}},
+};
+
+static bool RemapOpcodesToInternal(std::vector<int>& code) {
+	for (int pc = 0; pc < code.size(); ++pc) {
+		auto mapping = opcodes_map[code[pc]];
+		code[pc] = mapping.first;
+		pc += mapping.second;
+	}
+}
+
 
 // Indices for SET, GET, and GET_UNIT_VALUE for LUA return values
 static constexpr int LUA0 = 110; // (LUA0 returns the lua call status, 0 or 1)
