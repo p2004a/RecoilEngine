@@ -959,7 +959,7 @@ void SpringApp::Kill(bool fromRun)
 	LuaVFSDownload::Free(true);
 
 	// save window state early for the same reason as client demo
-	if (globalRendering != nullptr)
+	if (globalRendering != nullptr && globalRendering->sdlWindow != nullptr)
 		SaveWindowPosAndSize();
 	// see ::Reload
 	if (game != nullptr)
@@ -995,7 +995,8 @@ void SpringApp::Kill(bool fromRun)
 
 	CCameraHandler::KillStatic();
 
-	CInfoConsole::KillStatic();
+	if (infoConsole != nullptr)  // Can be null if Kill is called as a result of an error during Init
+		CInfoConsole::KillStatic();
 	CMouseHandler::KillStatic();
 
 	LOG("[SpringApp::%s][6]", __func__);

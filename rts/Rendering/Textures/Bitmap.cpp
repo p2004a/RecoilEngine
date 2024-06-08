@@ -967,7 +967,11 @@ CBitmap TBitmapAction<T, ch>::CreateRescaled(int newx, int newy)
 
 CBitmap::~CBitmap()
 {
-	ITexMemPool::texMemPool->Free(GetRawMem(), GetMemSize());
+	// We do check here because CBitmap object could be constructed before
+	// texMemPool got initialized at all.
+	if (memIdx != -1) {
+		ITexMemPool::texMemPool->Free(GetRawMem(), GetMemSize());
+	}
 }
 
 CBitmap::CBitmap()
@@ -1066,7 +1070,7 @@ CBitmap& CBitmap::operator=(CBitmap&& bmp) noexcept
 bool CBitmap::CanBeKilled()
 {
 	RECOIL_DETAILED_TRACY_ZONE;
-	return ITexMemPool::texMemPool->NoCurrentAllocations();
+	return !ITexMemPool::texMemPool || ITexMemPool::texMemPool->NoCurrentAllocations();
 }
 
 void CBitmap::InitPool(size_t size)

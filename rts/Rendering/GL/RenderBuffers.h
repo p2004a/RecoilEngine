@@ -82,6 +82,7 @@ protected:
 private:
 	static inline std::vector<RenderBuffer*> allRenderBuffers;
 	static std::array<std::unique_ptr<RenderBuffer>, 13> typedRenderBuffers;
+	static bool initialized;
 public:
 	static auto GetAllStandardRenderBuffers() -> const decltype(typedRenderBuffers)& { return typedRenderBuffers; };
 };

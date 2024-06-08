@@ -5,6 +5,7 @@
 #include "System/Misc/TracyDefs.h"
 
 std::array<std::unique_ptr<RenderBuffer>, 13> RenderBuffer::typedRenderBuffers;
+bool RenderBuffer::initialized = false;
 
 void RenderBuffer::InitStatic()
 {
@@ -24,11 +25,15 @@ void RenderBuffer::InitStatic()
 		std::make_unique<TypedRenderBuffer<VA_TYPE_2DT >>(1 << 20, 1 << 21),
 		std::make_unique<TypedRenderBuffer<VA_TYPE_2DTC>>(1 << 20, 1 << 21)
 	};
+	RenderBuffer::initialized = true;
 }
 
 void RenderBuffer::KillStatic()
 {
 	RECOIL_DETAILED_TRACY_ZONE;
+	if (!RenderBuffer::initialized) {
+		return;
+	}
 	for (const auto& trb : typedRenderBuffers) {
 		const auto Cx = trb->GetBuffersCapacity();
 		const auto C0 = trb->GetInitialCapacity();
@@ -44,4 +49,5 @@ void RenderBuffer::KillStatic()
 	}
 
 	RenderBuffer::typedRenderBuffers = {};
+	RenderBuffer::initialized = false;
 }

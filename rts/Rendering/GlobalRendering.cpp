@@ -562,6 +562,9 @@ bool CGlobalRendering::CreateWindowAndContext(const char* title)
 	if ((glContext = CreateGLContext(minCtx)) == nullptr)
 		return false;
 
+	LOG_L(L_FATAL, "[GR::%s] Simulating crash", __func__);
+	return false;
+
 	if (!CheckGLContextVersion(minCtx)) {
 		handleerror(nullptr, "minimum required OpenGL version not supported, aborting", "ERROR", MBF_OK | MBF_EXCL);
 		return false;
