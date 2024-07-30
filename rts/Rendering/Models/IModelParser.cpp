@@ -23,7 +23,7 @@
 #include "System/Threading/ThreadPool.h"
 #include "System/ContainerUtil.h"
 #include "System/LoadLock.h"
-#include "lib/assimp/include/assimp/Importer.hpp"
+#include <assimp/Importer.hpp>
 
 #include "System/Misc/TracyDefs.h"
 
