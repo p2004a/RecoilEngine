@@ -7,6 +7,8 @@
 #include <cinttypes>
 #include <asio/ip/udp.hpp>
 
+static const char* dummy_string = "asdasdasdasd";
+
 /**
  * API for engine <-> autohost (or similar) communication, using UDP over
  * loopback.
