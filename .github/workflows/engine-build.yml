@@ -41,7 +41,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/cache/restore@v4
         with:
-          path: bazel-remote-data-overlay
+          path: bazel-remote-data-overlay.tar
           key: pr-bazel-remote-data-${{ matrix.system }}-${{ github.run_id }}
           restore-keys: pr-bazel-remote-data-${{ matrix.system }}-
       - name: Mount bazel remote overlay
@@ -49,7 +49,8 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           sudo apt-get install --yes fuse-overlayfs
-          mkdir -p overlay-workdir bazel-remote-data-overlay bazel-remote-data-merged
+          sudo tar --acls --xattrs --xattrs-include='*' -xf bazel-remote-data-overlay.tar || mkdir bazel-remote-data-overlay
+          mkdir -p overlay-workdir bazel-remote-data-merged
           sudo fuse-overlayfs -o lowerdir=bazel-remote-data,upperdir=bazel-remote-data-overlay,workdir=overlay-workdir bazel-remote-data-merged
       - name: Start remote ccache fetcher
         uses: JarvusInnovations/background-action@2428e7b970a846423095c79d43f759abf979a635  # v1.0.7
@@ -117,11 +118,13 @@ jobs:
           path: ./artifacts
       - name: Unmount bazel remote overlay
         if: always() && steps.mount-overlay.outcome == 'success'
-        run: sudo fusermount -u bazel-remote-data-merged
+        run: |
+          sudo fusermount -u bazel-remote-data-merged
+          sudo tar --acls --xattrs --xattrs-include='*' -cf bazel-remote-data-overlay.tar bazel-remote-data-overlay
       - name: Save pull request's bazel remote cache overlay
         id: pr-cache-save
         if: always() && steps.pr-cache-restore.outcome == 'success'
         uses: actions/cache/save@v4
         with:
-          path: bazel-remote-data-overlay
+          path: bazel-remote-data-overlay.tar
           key: ${{ steps.pr-cache-restore.outputs.cache-primary-key }}
