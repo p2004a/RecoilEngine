@@ -8,6 +8,10 @@ on:
     paths:
       - 'docker-build-v2/amd64-linux/**'
       - 'docker-build-v2/amd64-windows/**'
+  pull_request:
+    paths:
+      - 'docker-build-v2/amd64-linux/**'
+      - 'docker-build-v2/amd64-windows/**'
 jobs:
   build-images:
     name: Build ${{ matrix.system }} docker image
@@ -34,5 +38,5 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: docker-build-v2/${{ matrix.system }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ghcr.io/${{ github.repository_owner }}/recoil-build-${{ matrix.system }}:latest
