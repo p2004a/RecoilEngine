@@ -7,10 +7,14 @@ on:
         type: boolean
         default: false
   pull_request:
+    paths-ignore:
+      - 'doc/**'
   push:
     branches:
       - master
       # TODO: add release branches once their naming is finalized
+    paths-ignore:
+      - 'doc/**'
 jobs:
   build-engine:
     strategy:
