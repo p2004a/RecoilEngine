@@ -6,9 +6,11 @@ on:
         description: "Recache ccache build objects"
         type: boolean
         default: false
-  schedule:
-    - cron: "36 00 * * *"
   pull_request:
+  push:
+    branches:
+      - master
+      # TODO: add release branches once their naming is finalized
 jobs:
   build-engine:
     strategy:
