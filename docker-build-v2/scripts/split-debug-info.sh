@@ -21,5 +21,6 @@ function split_debug {
 }
 export -f split_debug
 
+# We split debug info from all binaries in parallel using xargs -P0
 find \( -regex '.*\.\(dll\|so\|exe\)' -o -type f ! -name '*.dbg' -executable \) -print0 \
     | xargs -0 -P0 -n1 bash -c 'split_debug "$0"'

@@ -2,15 +2,15 @@
 
 set -e
 
-cmake -S /build/src -B /build/out \
+cmake --fresh -S /build/src -B /build/out \
     -DCMAKE_INSTALL_PREFIX:PATH=/build/out/install \
     -DAI_EXCLUDE_REGEX="^CppTestAI$" \
     -DUSERDOCS_PLAIN=ON \
-    -DWITH_MAPCOMPILER=OFF \
     -DCMAKE_BUILD_TYPE=RELWITHDEBINFO \
     -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O3 -g -DNDEBUG" \
     -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O3 -g -DNDEBUG" \
-    -G Ninja
+    -G Ninja \
+    "$@"
 
 cmake --build /build/out
 cmake --install /build/out
