@@ -1,6 +1,13 @@
+# Builds docker images used by engine-build.yml
 name: Docker Images Build
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - 'docker-build-v2/amd64-linux/**'
+      - 'docker-build-v2/amd64-windows/**'
 jobs:
   build-images:
     name: Build ${{ matrix.system }} docker image
