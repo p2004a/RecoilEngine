@@ -1,3 +1,20 @@
+# Engine CI workflow that compiles engine using build-docker-v2 scripts with
+# https://namespace.so/ GitHub Actions Runners.
+#
+# The worklow has multiple layers of caching for ccache compilation objects:
+#
+# - Local cache on runner's machine SSD disk, very efficient but prone to
+#   cache misses when workflow can't be scheduled next to the storage
+# - Remote, higher latency, S3 based storage using Cloudflare R2 bucket
+# - For pull requests only: GitHub Actions Cache archive build by mounting
+#   overlay filesystem on top of two other read-only caches (because pull
+#   requests can't have write access for security reasons) to reduce build
+#   times for subsequent pushes to the same PR branch.
+#
+# Because ccache can't use S3 based storage directly, we are leveraging
+# bazel-remote project that supports it, and ccache supports storing artifacts
+# in bazel remote caching HTTP layout.
+
 name: Build Engine v2
 on:
   workflow_dispatch:
@@ -6,15 +23,16 @@ on:
         description: "Recache ccache build objects"
         type: boolean
         default: false
-  pull_request:
-    paths-ignore:
-      - 'doc/**'
-  push:
-    branches:
-      - master
-      # TODO: add release branches once their naming is finalized
-    paths-ignore:
-      - 'doc/**'
+  # TODO: Uncomment after it's merged and docker images are availabe
+  # pull_request:
+  #   paths-ignore:
+  #     - 'doc/**'
+  # push:
+  #   branches:
+  #     - master
+  #     # TODO: add release branches once their naming is finalized
+  #   paths-ignore:
+  #     - 'doc/**'
 jobs:
   build-engine:
     strategy:
