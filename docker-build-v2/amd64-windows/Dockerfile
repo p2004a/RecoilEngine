@@ -7,7 +7,7 @@ RUN apt-get update \
     g++-mingw-w64-x86-64-posix git ninja-build ccache pipx p7zip-full binutils zstd \
  && rm -rf /var/lib/apt/lists/*
 
-# pipx --global since 1.5 we don't have https://github.com/pypa/pipx/issues/754
+# Using `pipx --global` would be better but it's available only since pipx 1.5
 RUN PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install cmake==3.25.*
 
 WORKDIR /build
