@@ -677,6 +677,11 @@ template<typename T, uint32_t ch>
 void TBitmapAction<T, ch>::Blur(int iterations, float weight, int startx, int starty, int width, int height)
 {
 	RECOIL_DETAILED_TRACY_ZONE;
+
+	ZoneScopedN("TBitmapBlur");
+	ZoneValue(iterations);
+	ZoneValue(width * height);
+
 	// We use an axis-separated blur algorithm. Applies BLUR_KERNEL in both the x
 	// and y dimensions. This 3x1 blur kernel is equivalent to a 3x3 kernel in
 	// both the x and y dimensions.

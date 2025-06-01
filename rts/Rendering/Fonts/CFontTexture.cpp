@@ -1388,6 +1388,8 @@ void CFontTexture::UpdateGlyphAtlasTexture()
 
 	// merge shadow and regular atlas bitmaps, dispose shadow
 	if (atlasUpdateShadow.xsize == atlasUpdate.xsize && atlasUpdateShadow.ysize == atlasUpdate.ysize) {
+		ZoneScopedN("UpdateAtlas");
+
 		for_mt(0, blurRectangles.size(), [&](int i) {
 			SRectangle& rect = blurRectangles[i];
 			atlasUpdateShadow.Blur(outlineSize, outlineWeight, rect.x1, rect.y1, rect.x2-rect.x1, rect.y2-rect.y1);
