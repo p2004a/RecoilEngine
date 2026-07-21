@@ -611,6 +611,7 @@ void CKeyBindings::AddActionToKeyMap(KeyMap& bindings, Action& action)
 		ActionList& al = bindings[ks];
 		action.bindingIndex = ++bindingsCount;
 		al.push_back(action);
+		buildHotkeyMap = true;
 	} else {
 		ActionList& al = it->second;
 		assert(it->first == ks);
@@ -624,6 +625,7 @@ void CKeyBindings::AddActionToKeyMap(KeyMap& bindings, Action& action)
 			// not yet bound, push it
 			action.bindingIndex = ++bindingsCount;
 			al.push_back(action);
+			buildHotkeyMap = true;
 		}
 	}
 }
@@ -684,6 +686,9 @@ bool CKeyBindings::UnBind(const std::string& keystr, const std::string& command)
 	if (al.empty())
 		bindings.erase(it);
 
+	if (success)
+		buildHotkeyMap = true;
+
 	return success;
 }
 
@@ -708,6 +713,7 @@ bool CKeyBindings::UnBindKeyset(const std::string& keystr)
 		return false;
 
 	bindings.erase(it);
+	buildHotkeyMap = true;
 	return true;
 }
 
@@ -741,13 +747,16 @@ bool CKeyBindings::UnBindAction(const std::string& command)
 	RECOIL_DETAILED_TRACY_ZONE;
 	if (debugEnabled)
 		LOG("[CKeyBindings::%s] command=%s", __func__, command.c_str());
-
 	// clear both maps; || would short-circuit and leave the scancode binding when
 	// the action is also bound to a keycode
 	const bool removedFromCode = RemoveActionFromKeyMap(command, codeBindings);
 	const bool removedFromScan = RemoveActionFromKeyMap(command, scanBindings);
+	const bool changed = removedFromCode || removedFromScan;
 
-	return removedFromCode || removedFromScan;
+	if (changed)
+		buildHotkeyMap = true;
+
+	return changed;
 }
 
 
@@ -818,9 +827,6 @@ void CKeyBindings::ConfigNotify(const std::string& key, const std::string& value
 void CKeyBindings::LoadDefaults()
 {
 	RECOIL_DETAILED_TRACY_ZONE;
-	const bool tmpBuildHotkeyMap = buildHotkeyMap;
-	buildHotkeyMap = false;
-
 	if (debugEnabled)
 		LOG("[CKeyBindings::%s]", __func__);
 
@@ -829,8 +835,7 @@ void CKeyBindings::LoadDefaults()
 	for (const auto& b: defaultBindings) {
 		Bind(b.key, b.action);
 	}
-
-	buildHotkeyMap = tmpBuildHotkeyMap;
+	// no rebuild here: only ever used as a building block, the caller rebuilds
 }
 
 
@@ -865,7 +870,7 @@ void CKeyBindings::PushAction(const Action& action)
 	}
 }
 
-bool CKeyBindings::ExecuteCommand(const std::string& line)
+bool CKeyBindings::ExecuteCommandInternal(const std::string& line)
 {
 	RECOIL_DETAILED_TRACY_ZONE;
 	const std::vector<std::string> words = CSimpleParser::Tokenize(line, 2);
@@ -894,7 +899,7 @@ bool CKeyBindings::ExecuteCommand(const std::string& line)
 		if (loadStack.empty() && words.size() == 1)
 			LoadDefaults();
 
-		Load(filename);
+		LoadInternal(filename);
 	}
 	else if (command == "keyreload") {
 		const std::string& filename = words.size() > 1 ? words[1] : DEFAULT_FILENAME;
@@ -902,13 +907,13 @@ bool CKeyBindings::ExecuteCommand(const std::string& line)
 		if (debugEnabled)
 			LOG("[CKeyBindings::%s] line=%s", __func__, line.c_str());
 
-		ExecuteCommand("unbindall");
-		ExecuteCommand("unbind enter chat");
+		ExecuteCommandInternal("unbindall");
+		ExecuteCommandInternal("unbind enter chat");
 
 		if (loadStack.empty() && words.size() == 1)
 			LoadDefaults();
 
-		Load(filename);
+		LoadInternal(filename);
 	}
 	else if (command == "keydefaults") {
 		LoadDefaults();
@@ -937,6 +942,7 @@ bool CKeyBindings::ExecuteCommand(const std::string& line)
 		keyCodes.Reset();
 		scanCodes.Reset();
 		bindingsCount = 0;
+		buildHotkeyMap = true;
 		Bind("enter", "chat"); // bare minimum
 
 		if (debugEnabled)
@@ -946,14 +952,19 @@ bool CKeyBindings::ExecuteCommand(const std::string& line)
 		return false;
 	}
 
-	if (buildHotkeyMap)
-		BuildHotkeyMap();
-
 	return false;
 }
 
 
-bool CKeyBindings::Load(const std::string& filename)
+bool CKeyBindings::ExecuteCommand(const std::string& line)
+{
+	const bool ret = ExecuteCommandInternal(line);
+	MaybeBuildHotkeyMap();
+	return ret;
+}
+
+
+bool CKeyBindings::LoadInternal(const std::string& filename)
 {
 	RECOIL_DETAILED_TRACY_ZONE;
 	if (std::find(loadStack.begin(), loadStack.end(), filename) != loadStack.end()) {
@@ -964,9 +975,6 @@ bool CKeyBindings::Load(const std::string& filename)
 
 		return false;
 	}
-
-	const bool tmpBuildHotkeyMap = buildHotkeyMap;
-	buildHotkeyMap = false;
 
 	if (debugEnabled) {
 		LOG("[CKeyBindings::%s] filename=%s%s", __func__, filename.c_str(), loadStack.empty() ? "" : ", load stack:");
@@ -980,14 +988,31 @@ bool CKeyBindings::Load(const std::string& filename)
 	CSimpleParser parser(ifs);
 
 	while (!parser.Eof()) {
-		ExecuteCommand(parser.GetCleanLine());
+		ExecuteCommandInternal(parser.GetCleanLine());
 	}
 
 	loadStack.pop_back();
 
-	buildHotkeyMap = tmpBuildHotkeyMap;
-
 	return true;
+}
+
+
+bool CKeyBindings::Load(const std::string& filename)
+{
+	const bool ret = LoadInternal(filename);
+	MaybeBuildHotkeyMap();
+	return ret;
+}
+
+
+void CKeyBindings::MaybeBuildHotkeyMap()
+{
+	RECOIL_DETAILED_TRACY_ZONE;
+	if (!buildHotkeyMap)
+		return;
+
+	BuildHotkeyMap();
+	buildHotkeyMap = false;
 }
 
 
