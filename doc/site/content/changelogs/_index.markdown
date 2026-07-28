@@ -103,3 +103,4 @@ This is the bleeding-edge changelog since version 2026.06, for **pre-release 202
 - Fixed to guard against already-dead reclaim targets [PR 3020](https://github.com/beyond-all-reason/RecoilEngine/pull/3020)
 - Fixed edge scrolling threshold [Issue 2987](https://github.com/beyond-all-reason/RecoilEngine/issues/2987)
 - Dump state handles resource packs
+- Fix units having the wrong path id after loading a save game. [PR 3120](https://github.com/beyond-all-reason/RecoilEngine/pull/3120)
