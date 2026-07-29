@@ -57,6 +57,7 @@ This is the bleeding-edge changelog since version 2026.06, for **pre-release 202
 - Added cancelcommand action
 - Added GetPrevFrameChecksum() to the Lua API [PR 2922](https://github.com/beyond-all-reason/RecoilEngine/pull/2922)
 - Fixes to Spring.SetMapShader [PR 3127](https://github.com/beyond-all-reason/RecoilEngine/pull/3127)
+- MouseHandler: route XButtons (Mouse4/5) as keybinds instead of mouse ownership [PR 2613](https://github.com/beyond-all-reason/RecoilEngine/pull/2613)
 
 ## Misc
 - Restored lowercasing in FileSystem::GetExtension
@@ -80,6 +81,7 @@ This is the bleeding-edge changelog since version 2026.06, for **pre-release 202
 - Fix stale spGetActionHotKeys returns [PR 3082](https://github.com/beyond-all-reason/RecoilEngine/pull/3082)
 - Use a portable type cast in MemPoolTypes logging
 - Support alternate file extensions for replays [PR 2975](https://github.com/beyond-all-reason/RecoilEngine/pull/2975)
+- Throw error and stop processing if modrules parsing fails
 
 ## Rendering
 - Added sorting icon names before adding to atlas so insertion order is consistent across runs.
@@ -96,6 +98,8 @@ This is the bleeding-edge changelog since version 2026.06, for **pre-release 202
 - Debug logs for loading splat normals
 - Fix SMF DNTS gating and fallback textures
 - Add mapoptions for blank map splats
+- Performance improvements with drawing ghosted buildings [PR 3110](https://github.com/beyond-all-reason/RecoilEngine/pull/3110)
+- Changed ghosted buildings are drawn based on the last team was seen with and so which team ownership doesn't show automatically on the ghost. [PR 3108](https://github.com/beyond-all-reason/RecoilEngine/pull/3108)
 
 ## Simulation
 - Sanitize NaNs in CHoverAirMoveType::UpdateMoveRate()
@@ -106,3 +110,4 @@ This is the bleeding-edge changelog since version 2026.06, for **pre-release 202
 - Fixed edge scrolling threshold [Issue 2987](https://github.com/beyond-all-reason/RecoilEngine/issues/2987)
 - Dump state handles resource packs
 - Fix units having the wrong path id after loading a save game. [PR 3120](https://github.com/beyond-all-reason/RecoilEngine/pull/3120)
+- Avoid UB in float-to-short angle casts (fixes arm64/x86 desync) [PR 3075](https://github.com/beyond-all-reason/RecoilEngine/pull/3075)
