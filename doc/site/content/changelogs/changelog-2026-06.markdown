@@ -1,8 +1,6 @@
 +++
-title = "Running changelog"
-[cascade]
-  [cascade.params]
-    type = "docs"
+title = "Release 2026.06"
+aliases = ['/changelogs/changelog-2026-06']
 +++
 
 This is the bleeding-edge changelog since version 2025.06, for **pre-release 2026.06**.
