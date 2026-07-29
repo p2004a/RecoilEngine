@@ -20,7 +20,9 @@ This is the bleeding-edge changelog since version 2026.06, for **pre-release 202
 - Added GetPrevFrameChecksum() to the Lua API
 - Add multi-platform sync testing (amd64-windows/linux + arm64-linux) [PR 2921](https://github.com/beyond-all-reason/RecoilEngine/pull/2921)
 - Optimize LuaPushNamedFoo using compile time key hashing [PR 2986](https://github.com/beyond-all-reason/RecoilEngine/pull/2986)
-- fix(synctest): workaround widget timing nondeterminism [PR 3124](https://github.com/beyond-all-reason/RecoilEngine/pull/3124)
+- Fixed (synctest): workaround widget timing nondeterminism [PR 3124](https://github.com/beyond-all-reason/RecoilEngine/pull/3124)
+- Remove refrences to 32-bit support [PR 3033](https://github.com/beyond-all-reason/RecoilEngine/pull/3033)
+- Improved setup foir ASAN build [PR 2663](https://github.com/beyond-all-reason/RecoilEngine/pull/2663)
 
 ## Documentation
 - Added 'First Steps with the Engine' guide for game developers
@@ -58,6 +60,7 @@ This is the bleeding-edge changelog since version 2026.06, for **pre-release 202
 - Added GetPrevFrameChecksum() to the Lua API [PR 2922](https://github.com/beyond-all-reason/RecoilEngine/pull/2922)
 - Fixes to Spring.SetMapShader [PR 3127](https://github.com/beyond-all-reason/RecoilEngine/pull/3127)
 - MouseHandler: route XButtons (Mouse4/5) as keybinds instead of mouse ownership [PR 2613](https://github.com/beyond-all-reason/RecoilEngine/pull/2613)
+- Fixed Lua EmmyLua type annotations [PR 2888](https://github.com/beyond-all-reason/RecoilEngine/pull/2888)
 
 ## Misc
 - Restored lowercasing in FileSystem::GetExtension
@@ -111,3 +114,5 @@ This is the bleeding-edge changelog since version 2026.06, for **pre-release 202
 - Dump state handles resource packs
 - Fix units having the wrong path id after loading a save game. [PR 3120](https://github.com/beyond-all-reason/RecoilEngine/pull/3120)
 - Avoid UB in float-to-short angle casts (fixes arm64/x86 desync) [PR 3075](https://github.com/beyond-all-reason/RecoilEngine/pull/3075)
+- Send gameprogress packet on connection initialization [PR 2872](https://github.com/beyond-all-reason/RecoilEngine/pull/2872)
+- Separate and make sonar and RADAR jamming function as they logicall should. [PR 2980](https://github.com/beyond-all-reason/RecoilEngine/pull/2980)
