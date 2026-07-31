@@ -3,7 +3,7 @@ title = "Release 2026.06"
 aliases = ['/changelogs/changelog-2026-06']
 +++
 
-This is the bleeding-edge changelog since version 2025.06, for **pre-release 2026.06**.
+This is the changelog since version 2025.06 until **version 2025.06.12**, which was released on 2026-07-14.
 
 ## Caveats
 
