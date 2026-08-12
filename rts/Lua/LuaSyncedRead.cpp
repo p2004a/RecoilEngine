@@ -4835,6 +4835,11 @@ int LuaSyncedRead::GetUnitHarvestStorage(lua_State* L)
  *
  * @function Spring.GetUnitBuildParams
  * @param unitID integer
+ * @param paramName string One of `buildRange`, `buildDistance`, or `buildRange3D`.
+ * @return number|boolean|nil value
+ *
+ * Returns no value when the unit is not an allied builder or when `paramName`
+ * is not recognized.
  */
 int LuaSyncedRead::GetUnitBuildParams(lua_State* L)
 {
@@ -5887,6 +5892,25 @@ int LuaSyncedRead::GetUnitCollisionVolumeData(lua_State* L)
 	return LuaUtils::PushColVolData(L, &unit->collisionVolume);
 }
 
+/***
+ *
+ * @function Spring.GetUnitPieceCollisionVolumeData
+ * @param unitID integer
+ * @param pieceIndex integer 1-based local-model piece index
+ * @return number? scaleX
+ * @return number? scaleY
+ * @return number? scaleZ
+ * @return number? offsetX
+ * @return number? offsetY
+ * @return number? offsetZ
+ * @return integer? volumeType
+ * @return integer? testType
+ * @return integer? primaryAxis
+ * @return boolean? disabled
+ *
+ * Returns no values when `unitID` is invalid or not in line of sight, or when
+ * `pieceIndex` is invalid.
+ */
 int LuaSyncedRead::GetUnitPieceCollisionVolumeData(lua_State* L)
 {
 	return (PushPieceCollisionVolumeData(L, ParseInLosUnit(L, __func__, 1)));
@@ -9279,11 +9303,12 @@ static int TraceRayGroundImpl(lua_State *const L, const float3 &pos, const float
  * @param dirX number
  * @param dirY number
  * @param dirZ number
+ * @param maxLength number? (Default: `999999`)
  * @param testWater boolean? (Default: `true`)
- * @return number rayLength
- * @return number posX
- * @return number posY
- * @return number posZ
+ * @return number? rayLength
+ * @return number? posX
+ * @return number? posY
+ * @return number? posZ
  */
 int LuaSyncedRead::TraceRayGroundInDirection(lua_State* L)
 {
